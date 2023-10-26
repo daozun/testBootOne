@@ -1,5 +1,6 @@
 package com.example.testBootOne.service;
 
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -8,6 +9,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.testBootOne.entity.Result;
+import com.example.testBootOne.entity.StatusCode;
 import com.example.testBootOne.entity.UserEntity;
 import com.example.testBootOne.mapper.UserMapper;
 import com.example.testBootOne.utils.JwtTokenUtil;
@@ -63,10 +66,9 @@ public class UserService extends ServiceImpl<UserMapper, UserEntity> {
 
     }
 
-    public String handleLogin(UserEntity userEntity) {
-        if(userEntity.getUsername() == null || userEntity.getPassword() == null) {
-            return "请输入用户名或密码";
-        }
+    public Result handleLogin(UserEntity userEntity) {
+        Assert.notBlank(userEntity.getUsername(), "请输入用户名");
+        Assert.notBlank(userEntity.getPassword(), "请输入密码");
 
         String username = userEntity.getUsername();
         String password = userEntity.getPassword();
@@ -80,18 +82,17 @@ public class UserService extends ServiceImpl<UserMapper, UserEntity> {
             if(encoder.matches(password, userObj.getPassword())) {
                 HashMap<String, Object> map = new HashMap<>();
                 map.put("username", userObj);
-                return jwtTokenUtil.generateToken(map);
+                return Result.create(StatusCode.OK, "新增成功", jwtTokenUtil.generateToken(map));
             }
-            return "密码错误";
+            return Result.create(StatusCode.LOGINERROR, "密码错误");
         }
 
-        return "用户名错误";
+        return Result.create(StatusCode.LOGINERROR, "用户名错误");
     }
 
-    public String handleRegister(UserEntity userEntity) {
-        if(userEntity.getUsername() == null || userEntity.getPassword() == null) {
-            return "请输入用户名或密码";
-        }
+    public Result handleRegister(UserEntity userEntity) {
+        Assert.notBlank(userEntity.getUsername(), "请输入用户名");
+        Assert.notBlank(userEntity.getPassword(), "请输入密码");
 
         String username = userEntity.getUsername();
         String password = userEntity.getPassword();
@@ -102,7 +103,7 @@ public class UserService extends ServiceImpl<UserMapper, UserEntity> {
         UserEntity userObj =  userMapper.selectOne(wrapper);
 
         if(ObjectUtil.isNotEmpty(userObj)) {
-            return "用户名重复";
+            return Result.create(StatusCode.LOGINERROR, "用户名重复");
         }
 
         userEntity.setUsername(username);
@@ -112,9 +113,9 @@ public class UserService extends ServiceImpl<UserMapper, UserEntity> {
         int isSave = userMapper.insert(userEntity);
 
         if(isSave == 1) {
-            return "新增成功";
+            return Result.create(StatusCode.OK, "新增成功");
         }
 
-        return "新增失败";
+        return Result.create(StatusCode.ERROR, "新增失败");
     }
 }

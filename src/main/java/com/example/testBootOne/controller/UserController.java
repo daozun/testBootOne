@@ -1,10 +1,10 @@
 package com.example.testBootOne.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.example.testBootOne.entity.Result;
 import com.example.testBootOne.entity.UserEntity;
 import com.example.testBootOne.mapper.UserMapper;
 import com.example.testBootOne.service.UserService;
-import com.example.testBootOne.service.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,12 +47,12 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody UserEntity userEntity) {
+    public Result login(@RequestBody UserEntity userEntity) {
         return userService.handleLogin(userEntity);
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody UserEntity userEntity) {
+    public Result register(@RequestBody UserEntity userEntity) {
         return userService.handleRegister(userEntity);
     }
 }
